@@ -56,29 +56,29 @@
             // contextMenuNotifyIcon
             // 
             this.contextMenuNotifyIcon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.exitToolStripMenuItem,
-            this.unbindKeyToolStripMenuItem});
+            this.unbindKeyToolStripMenuItem,
+            this.exitToolStripMenuItem});
             this.contextMenuNotifyIcon.Name = "contextMenuNotifyIcon";
-            this.contextMenuNotifyIcon.Size = new System.Drawing.Size(136, 48);
+            this.contextMenuNotifyIcon.Size = new System.Drawing.Size(153, 70);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // unbindKeyToolStripMenuItem
             // 
             this.unbindKeyToolStripMenuItem.Name = "unbindKeyToolStripMenuItem";
-            this.unbindKeyToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.unbindKeyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.unbindKeyToolStripMenuItem.Text = "Unbind Key";
             this.unbindKeyToolStripMenuItem.Click += new System.EventHandler(this.unbindKeyToolStripMenuItem_Click);
             // 
             // pictureBox1
             // 
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Image = global::Locker.Properties.Resources.Status_object_locked_icon;
+            this.pictureBox1.Image = global::Locker.Properties.Resources.locked_icon;
             this.pictureBox1.Location = new System.Drawing.Point(0, 0);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(122, 153);
@@ -112,7 +112,6 @@
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Shown += new System.EventHandler(this.Form1_Shown);
-            this.Resize += new System.EventHandler(this.Form1_Resize);
             this.contextMenuNotifyIcon.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);

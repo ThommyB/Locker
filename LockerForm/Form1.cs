@@ -39,7 +39,6 @@ namespace LockerForm
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
 
-
         private enum MouseMessages
         {
             WM_LBUTTONDOWN = 0x0201,
@@ -68,15 +67,14 @@ namespace LockerForm
         }
         
         private const int WH_MOUSE_LL = 14;
+        private static LowLevelMouseProc _proc = HookCallback;
+        private static IntPtr _hookID = IntPtr.Zero;
+
 
         private static bool _locked = false;
         private bool _setingUpKey = false;
         private static int mouseX = 0;
         private int prevMouseX = -1;
-
-        private static LowLevelMouseProc _proc = HookCallback;
-        private static IntPtr _hookID = IntPtr.Zero;
-
 
 
         public Form1()
@@ -89,50 +87,8 @@ namespace LockerForm
             InitializeComponent();
         }
 
-        private void timer_Tick(object sender, EventArgs e)
-        {
-            for (Int32 i = 0; i < 255; i++)
-            {
-                int keyState = GetAsyncKeyState(i);
-                if (keyState == 1 || keyState == -32767)
-                {
-                    if (_setingUpKey && (Keys)i != Keys.LButton && (Keys)i != Keys.RButton)
-                    {
-                        Settings.Default.Key = i;                      
-                        Settings.Default.Save();
 
-                        lblBindKey.Visible = false;
-                        Hide();
-
-                        MessageBox.Show("Bound key is: " + ((Keys)i).ToString());
-                        _setingUpKey = false;
-
-                        return;
-                    }
-
-                    if (i == Settings.Default.Key)
-                    {
-                        prevMouseX = mouseX;
-                        SwitchLock();
-                    }
-                    else
-                    {
-                        if (_locked)
-                        {
-                            Lock();
-                        }
-                    }
-                    break;
-                }
-            }
-
-            if (_locked && prevMouseX != mouseX)
-            {
-                Lock();
-            }
-
-            
-        }
+        #region Private Methods
 
         private void Lock()
         {
@@ -144,57 +100,40 @@ namespace LockerForm
         {
             if (_locked == false)
             {
-                Console.WriteLine("Locked");
                 Show();
                 notifyIcon.Icon = new System.Drawing.Icon(Application.StartupPath + @"\locked.ico");
                 _locked = true;
             }
             else
             {
-                Console.WriteLine("Unlocked");
                 Hide();
                 notifyIcon.Icon = new System.Drawing.Icon(Application.StartupPath + @"\unlocked.ico");
                 _locked = false;
             }
         }
 
-        private void Form1_Resize(object sender, EventArgs e)
+        private void BindKey(int key)
         {
+            Settings.Default.Key = key;
+            Settings.Default.Save();
 
+            lblBindKey.Visible = false;
+            Hide();
+
+            MessageBox.Show("Bound key is: " + ((Keys)key).ToString());
+            _setingUpKey = false;
         }
 
-        private void Form1_Shown(object sender, EventArgs e)
+        private void UnbindKey()
         {
-            if (Settings.Default.Key != -1)
-            {
-                Hide();
-            }
-            
+            _setingUpKey = true;
+            Settings.Default.Key = -1;
+            lblBindKey.Visible = true;
+
+            Show();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            if (Settings.Default.Key == -1)
-            {
-                _setingUpKey = true;
-                lblBindKey.Visible = true;
-            }
-            else
-            {
-                lblBindKey.Visible = false;
-                Hide();
-            }
-        }
-
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            UnhookWindowsHookEx(_hookID);
-        }
-
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
+        /* Mouse hooks */
 
         private static IntPtr SetHook(LowLevelMouseProc proc)
         {
@@ -217,14 +156,85 @@ namespace LockerForm
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
 
-        private void unbindKeyToolStripMenuItem_Click(object sender, EventArgs e)
+        #endregion
+  
+
+        #region Event Handlers
+
+        private void Form1_Load(object sender, EventArgs e)
         {
-            _setingUpKey = true;
-            Settings.Default.Key = -1;
-            lblBindKey.Visible = true;
-            Show();
+            if (Settings.Default.Key == -1)
+            {
+                _setingUpKey = true;
+                lblBindKey.Visible = true;
+            }
+            else
+            {
+                lblBindKey.Visible = false;
+                Hide();
+            }
         }
 
+        private void Form1_Shown(object sender, EventArgs e)
+        {
+            if (Settings.Default.Key != -1)
+            {
+                Hide();
+            }
+        }
 
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            for (Int32 i = 0; i < 255; i++)
+            {
+                int keyState = GetAsyncKeyState(i);
+                if (keyState == 1 || keyState == -32767)
+                {
+                    if (_setingUpKey && (Keys)i != Keys.LButton && (Keys)i != Keys.RButton)
+                    {
+                        BindKey(i);
+                        return;
+                    }
+
+                    // Locker key pressed
+                    if (i == Settings.Default.Key)
+                    {
+                        prevMouseX = mouseX;
+                        SwitchLock();
+                    }
+                    else
+                    {
+                        if (_locked)
+                        {
+                            Lock();
+                        }
+                    }
+                    break;
+                }
+            }
+
+            // Mouse moved
+            if (_locked && prevMouseX != mouseX)
+            {
+                Lock();
+            }
+        }
+
+        private void unbindKeyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UnbindKey();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            UnhookWindowsHookEx(_hookID);
+        }
+
+        #endregion
     }
 }

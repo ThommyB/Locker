@@ -63,9 +63,9 @@ namespace Locker.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Status_object_locked_icon {
+        internal static System.Drawing.Bitmap locked_icon {
             get {
-                object obj = ResourceManager.GetObject("Status-object-locked-icon", resourceCulture);
+                object obj = ResourceManager.GetObject("locked_icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
