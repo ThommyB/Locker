@@ -33,10 +33,11 @@
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuNotifyIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.unbindKeyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.lblBindKey = new System.Windows.Forms.Label();
+            this.bw = new System.ComponentModel.BackgroundWorker();
             this.contextMenuNotifyIcon.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -59,21 +60,21 @@
             this.unbindKeyToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.contextMenuNotifyIcon.Name = "contextMenuNotifyIcon";
-            this.contextMenuNotifyIcon.Size = new System.Drawing.Size(153, 70);
-            // 
-            // exitToolStripMenuItem
-            // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.contextMenuNotifyIcon.Size = new System.Drawing.Size(136, 48);
             // 
             // unbindKeyToolStripMenuItem
             // 
             this.unbindKeyToolStripMenuItem.Name = "unbindKeyToolStripMenuItem";
-            this.unbindKeyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.unbindKeyToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.unbindKeyToolStripMenuItem.Text = "Unbind Key";
             this.unbindKeyToolStripMenuItem.Click += new System.EventHandler(this.unbindKeyToolStripMenuItem_Click);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // pictureBox1
             // 
@@ -94,6 +95,10 @@
             this.lblBindKey.Size = new System.Drawing.Size(92, 19);
             this.lblBindKey.TabIndex = 4;
             this.lblBindKey.Text = "Hit the Key";
+            // 
+            // bw
+            // 
+            this.bw.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bw_DoWork);
             // 
             // Form1
             // 
@@ -128,6 +133,7 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.ToolStripMenuItem unbindKeyToolStripMenuItem;
         private System.Windows.Forms.Label lblBindKey;
+        private System.ComponentModel.BackgroundWorker bw;
     }
 }
 

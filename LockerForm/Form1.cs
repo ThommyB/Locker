@@ -13,6 +13,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Management;
+using System.Media;
 
 namespace LockerForm
 {
@@ -75,6 +77,7 @@ namespace LockerForm
         private bool _setingUpKey = false;
         private static int mouseX = 0;
         private int prevMouseX = -1;
+        private Form _f2;
 
 
         public Form1()
@@ -173,6 +176,9 @@ namespace LockerForm
                 lblBindKey.Visible = false;
                 Hide();
             }
+
+            bw.RunWorkerAsync();
+            _f2 = new Form2();
         }
 
         private void Form1_Shown(object sender, EventArgs e)
@@ -236,5 +242,45 @@ namespace LockerForm
         }
 
         #endregion
+
+        private void bw_DoWork(object sender, DoWorkEventArgs e)
+        {
+            WqlEventQuery insertQuery = new WqlEventQuery("SELECT * FROM __InstanceCreationEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_USBHub'");
+
+            ManagementEventWatcher insertWatcher = new ManagementEventWatcher(insertQuery);
+            insertWatcher.EventArrived += new EventArrivedEventHandler(DeviceInsertedEvent);
+            insertWatcher.Start();
+
+            WqlEventQuery removeQuery = new WqlEventQuery("SELECT * FROM __InstanceDeletionEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_USBHub'");
+            ManagementEventWatcher removeWatcher = new ManagementEventWatcher(removeQuery);
+            removeWatcher.EventArrived += new EventArrivedEventHandler(DeviceRemovedEvent);
+            removeWatcher.Start();
+
+            Thread.Sleep(20000000);
+        }
+
+        private void DeviceInsertedEvent(object sender, EventArrivedEventArgs e)
+        {
+            ManagementBaseObject instance = (ManagementBaseObject)e.NewEvent["TargetInstance"];
+            foreach (var property in instance.Properties)
+            {
+                Console.WriteLine(property.Name + " = " + property.Value);
+            }
+
+            SystemSounds.Exclamation.Play();
+            File.AppendAllText(AppDomain.CurrentDomain.BaseDirectory + "log.txt", "[" + DateTime.Now.ToString("u") + "] " + "USB DEVICE - IN" + Environment.NewLine);
+            MessageBox.Show("Intruder!!!");
+        }
+
+        void DeviceRemovedEvent(object sender, EventArrivedEventArgs e)
+        {
+            ManagementBaseObject instance = (ManagementBaseObject)e.NewEvent["TargetInstance"];
+            foreach (var property in instance.Properties)
+            {
+                Console.WriteLine(property.Name + " = " + property.Value);
+            }
+
+            File.AppendAllText(AppDomain.CurrentDomain.BaseDirectory + "log.txt", "[" + DateTime.Now.ToString("u") + "] " + "USB DEVICE - OUT" + Environment.NewLine);
+        }     
     }
 }
