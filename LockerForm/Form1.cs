@@ -16,10 +16,12 @@ using System.Windows.Forms;
 using System.Management;
 using System.Media;
 
-namespace LockerForm
+namespace Locker
 {
     public partial class Form1 : Form
     {
+        #region Imports
+
         [DllImport("user32.dll")]
         public static extern int GetAsyncKeyState(Int32 i);
 
@@ -72,18 +74,20 @@ namespace LockerForm
         private static LowLevelMouseProc _proc = HookCallback;
         private static IntPtr _hookID = IntPtr.Zero;
 
+        #endregion
 
         private static bool _locked = false;
         private bool _setingUpKey = false;
         private static int mouseX = 0;
         private int prevMouseX = -1;
-        private Form _f2;
 
+        public static Queue<Notifications> Notifications { get; set; }
 
         public Form1()
         {
             _hookID = SetHook(_proc);
 
+            // Transparent background
             this.TransparencyKey = Color.White;
             this.BackColor = Color.White;
 
@@ -96,10 +100,10 @@ namespace LockerForm
         private void Lock()
         {
             LockWorkStation();
-            SwitchLock();
+            ToggleLock();
         }
 
-        private void SwitchLock()
+        private void ToggleLock()
         {
             if (_locked == false)
             {
@@ -136,7 +140,40 @@ namespace LockerForm
             Show();
         }
 
-        /* Mouse hooks */
+        private void ShowNotification(string text, Locker.Notifications.Images image, string description = "")
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<string, Locker.Notifications.Images, string>(ShowNotification), text, image, description);
+                return;
+            }
+
+            Notifications notify = new Notifications();
+            int y = Notifications.Count > 0 ? Notifications.Last().Y + Notifications.Last().Height : 100;
+            Notifications.Enqueue(notify);
+            notify.Show(text, image, y, description);
+        }
+
+        private void DeviceEvent(bool usbIn, string description = "")
+        {
+            string eventText = "";
+            if (usbIn)
+            {
+                eventText = "USB IN";
+                ShowNotification(eventText, Locker.Notifications.Images.usb_in, description);
+                SystemSounds.Exclamation.Play();
+            }
+            else
+            {
+                eventText = "USB OUT";
+                ShowNotification(eventText, Locker.Notifications.Images.usb_out, description);
+            }
+
+            File.AppendAllText(AppDomain.CurrentDomain.BaseDirectory + "log.txt",
+                string.Format("[{0}] {1} | {2}{3}", DateTime.Now.ToString("u"), eventText, Environment.NewLine, description));
+        }
+
+        #region Mouse hooks
 
         private static IntPtr SetHook(LowLevelMouseProc proc)
         {
@@ -160,12 +197,15 @@ namespace LockerForm
         }
 
         #endregion
-  
+
+        #endregion
+
 
         #region Event Handlers
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            // if there is no bound key, let user set one
             if (Settings.Default.Key == -1)
             {
                 _setingUpKey = true;
@@ -177,8 +217,9 @@ namespace LockerForm
                 Hide();
             }
 
+            Notifications = new Queue<Notifications>();
+
             bw.RunWorkerAsync();
-            _f2 = new Form2();
         }
 
         private void Form1_Shown(object sender, EventArgs e)
@@ -206,7 +247,7 @@ namespace LockerForm
                     if (i == Settings.Default.Key)
                     {
                         prevMouseX = mouseX;
-                        SwitchLock();
+                        ToggleLock();
                     }
                     else
                     {
@@ -241,8 +282,11 @@ namespace LockerForm
             UnhookWindowsHookEx(_hookID);
         }
 
-        #endregion
-
+        /// <summary>
+        /// Setup usb watcher
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bw_DoWork(object sender, DoWorkEventArgs e)
         {
             WqlEventQuery insertQuery = new WqlEventQuery("SELECT * FROM __InstanceCreationEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_USBHub'");
@@ -262,25 +306,18 @@ namespace LockerForm
         private void DeviceInsertedEvent(object sender, EventArrivedEventArgs e)
         {
             ManagementBaseObject instance = (ManagementBaseObject)e.NewEvent["TargetInstance"];
-            foreach (var property in instance.Properties)
-            {
-                Console.WriteLine(property.Name + " = " + property.Value);
-            }
-
-            SystemSounds.Exclamation.Play();
-            File.AppendAllText(AppDomain.CurrentDomain.BaseDirectory + "log.txt", "[" + DateTime.Now.ToString("u") + "] " + "USB DEVICE - IN" + Environment.NewLine);
-            MessageBox.Show("Intruder!!!");
+            
+            DeviceEvent(true, instance?.Properties["Name"].Value.ToString());
         }
 
-        void DeviceRemovedEvent(object sender, EventArrivedEventArgs e)
+        private void DeviceRemovedEvent(object sender, EventArrivedEventArgs e)
         {
             ManagementBaseObject instance = (ManagementBaseObject)e.NewEvent["TargetInstance"];
-            foreach (var property in instance.Properties)
-            {
-                Console.WriteLine(property.Name + " = " + property.Value);
-            }
 
-            File.AppendAllText(AppDomain.CurrentDomain.BaseDirectory + "log.txt", "[" + DateTime.Now.ToString("u") + "] " + "USB DEVICE - OUT" + Environment.NewLine);
+            DeviceEvent(false, instance?.Properties["Name"].Value.ToString());
         }     
+        
+        #endregion
+
     }
 }

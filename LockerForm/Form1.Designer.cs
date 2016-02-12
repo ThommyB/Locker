@@ -1,4 +1,4 @@
-﻿namespace LockerForm
+﻿namespace Locker
 {
     partial class Form1
     {
