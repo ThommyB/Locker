@@ -43,6 +43,33 @@ namespace Locker
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
 
+        #region Minimize all windows
+        //http://stackoverflow.com/questions/785054/minimizing-all-open-windows-in-c-sharp
+        [DllImport("user32.dll", EntryPoint = "FindWindow", SetLastError = true)]
+        static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+        [DllImport("user32.dll", EntryPoint = "SendMessage", SetLastError = true)]
+        static extern IntPtr SendMessage(IntPtr hWnd, Int32 Msg, IntPtr wParam, IntPtr lParam);
+
+        const int WM_COMMAND = 0x111;
+        const int MIN_ALL = 419;
+        const int MIN_ALL_UNDO = 416;
+        #endregion
+
+        #region Toggle desktop icons
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern IntPtr GetWindow(IntPtr hWnd, GetWindow_Cmd uCmd);
+        enum GetWindow_Cmd : uint
+        {
+            GW_HWNDFIRST = 0,
+            GW_HWNDLAST = 1,
+            GW_HWNDNEXT = 2,
+            GW_HWNDPREV = 3,
+            GW_OWNER = 4,
+            GW_CHILD = 5,
+            GW_ENABLEDPOPUP = 6
+        }
+        #endregion
+
         private enum MouseMessages
         {
             WM_LBUTTONDOWN = 0x0201,
@@ -103,18 +130,31 @@ namespace Locker
             ToggleLock();
         }
 
-        private void ToggleLock()
+        private void ToggleMinimezeAll(bool minimized)
         {
-            if (_locked == false)
+            IntPtr lHwnd = FindWindow("Shell_TrayWnd", null);
+            if (minimized)
+                SendMessage(lHwnd, WM_COMMAND, (IntPtr)MIN_ALL, IntPtr.Zero);
+            else
+                SendMessage(lHwnd, WM_COMMAND, (IntPtr)MIN_ALL_UNDO, IntPtr.Zero);
+        }
+
+        private void ToggleLock(bool locked = false)
+        {
+            prevMouseX = mouseX;
+
+            if (!_locked || locked)
             {
                 Show();
-                notifyIcon.Icon = new System.Drawing.Icon(Application.StartupPath + @"\locked.ico");
+                ToggleMinimezeAll(true);
+                notifyIcon.Icon = new Icon(Application.StartupPath + @"\locked.ico");
                 _locked = true;
             }
             else
             {
                 Hide();
-                notifyIcon.Icon = new System.Drawing.Icon(Application.StartupPath + @"\unlocked.ico");
+                ToggleMinimezeAll(false);
+                notifyIcon.Icon = new Icon(Application.StartupPath + @"\unlocked.ico");
                 _locked = false;
             }
         }
@@ -220,6 +260,42 @@ namespace Locker
             Notifications = new Queue<Notifications>();
 
             bw.RunWorkerAsync();
+            RemoteController remote = new RemoteController();
+            remote.CommandReceived += Remote_CommandReceived;
+        }
+
+        private void Remote_CommandReceived(object sender, CommandReceivedEventArgs e)
+        {
+            if(Settings.Default.IgnoredDevices != null && Settings.Default.IgnoredDevices.Contains(e.Fingerprint))
+            {
+                return;
+            }
+            else if (Settings.Default.AuthorizedDevices == null || !Settings.Default.AuthorizedDevices.Contains(e.Fingerprint))
+            {
+                var confirmResult = MessageBox.Show("Authorize this device?", "Confirm", MessageBoxButtons.YesNo);
+                if (confirmResult == DialogResult.No)
+                {
+                    if(Settings.Default.IgnoredDevices == null)
+                        Settings.Default.IgnoredDevices = new System.Collections.Specialized.StringCollection();
+
+                    Settings.Default.IgnoredDevices.Add(e.Fingerprint);
+                    Settings.Default.Save();
+                    return;
+                }  
+                else
+                {
+                    Settings.Default.AuthorizedDevices = new System.Collections.Specialized.StringCollection();
+                    Settings.Default.AuthorizedDevices.Add(e.Fingerprint);
+                    Settings.Default.Save();
+                }
+            }
+
+            if (e.Enabled)
+            {
+                ToggleLock(true);
+            }
+            else
+                ToggleLock(false);
         }
 
         private void Form1_Shown(object sender, EventArgs e)
@@ -246,7 +322,6 @@ namespace Locker
                     // Locker key pressed
                     if (i == Settings.Default.Key)
                     {
-                        prevMouseX = mouseX;
                         ToggleLock();
                     }
                     else
@@ -263,7 +338,7 @@ namespace Locker
             // Mouse moved
             if (_locked && prevMouseX != mouseX)
             {
-                Lock();
+                //Lock();   TODO
             }
         }
 
@@ -275,6 +350,13 @@ namespace Locker
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void clearDeviceListToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Settings.Default.AuthorizedDevices = null;
+            Settings.Default.IgnoredDevices = null;
+            Settings.Default.Save();
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -315,9 +397,8 @@ namespace Locker
             ManagementBaseObject instance = (ManagementBaseObject)e.NewEvent["TargetInstance"];
 
             DeviceEvent(false, instance?.Properties["Name"].Value.ToString());
-        }     
-        
-        #endregion
+        }
 
+        #endregion
     }
 }

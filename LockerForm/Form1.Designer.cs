@@ -38,6 +38,7 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.lblBindKey = new System.Windows.Forms.Label();
             this.bw = new System.ComponentModel.BackgroundWorker();
+            this.clearDeviceListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuNotifyIcon.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -58,21 +59,22 @@
             // 
             this.contextMenuNotifyIcon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.unbindKeyToolStripMenuItem,
+            this.clearDeviceListToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.contextMenuNotifyIcon.Name = "contextMenuNotifyIcon";
-            this.contextMenuNotifyIcon.Size = new System.Drawing.Size(136, 48);
+            this.contextMenuNotifyIcon.Size = new System.Drawing.Size(161, 92);
             // 
             // unbindKeyToolStripMenuItem
             // 
             this.unbindKeyToolStripMenuItem.Name = "unbindKeyToolStripMenuItem";
-            this.unbindKeyToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.unbindKeyToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.unbindKeyToolStripMenuItem.Text = "Unbind Key";
             this.unbindKeyToolStripMenuItem.Click += new System.EventHandler(this.unbindKeyToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -99,6 +101,13 @@
             // bw
             // 
             this.bw.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bw_DoWork);
+            // 
+            // clearDeviceListToolStripMenuItem
+            // 
+            this.clearDeviceListToolStripMenuItem.Name = "clearDeviceListToolStripMenuItem";
+            this.clearDeviceListToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.clearDeviceListToolStripMenuItem.Text = "Clear Device List";
+            this.clearDeviceListToolStripMenuItem.Click += new System.EventHandler(this.clearDeviceListToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -134,6 +143,7 @@
         private System.Windows.Forms.ToolStripMenuItem unbindKeyToolStripMenuItem;
         private System.Windows.Forms.Label lblBindKey;
         private System.ComponentModel.BackgroundWorker bw;
+        private System.Windows.Forms.ToolStripMenuItem clearDeviceListToolStripMenuItem;
     }
 }
 
