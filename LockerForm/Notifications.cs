@@ -117,10 +117,10 @@ namespace Locker
 
         private void Notifications_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Form1.Notifications.Dequeue();
+            MainForm.Notifications.Dequeue();
 
             // Move down other notifications
-            foreach (var n in Form1.Notifications)
+            foreach (var n in MainForm.Notifications)
             {
                 n.Y = n.Y - Height;
                 n.Top = n.Top + Height;

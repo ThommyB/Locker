@@ -1,6 +1,6 @@
 ﻿namespace Locker
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,25 +29,17 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.timer = new System.Windows.Forms.Timer(this.components);
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuNotifyIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.unbindKeyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearDeviceListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.lblBindKey = new System.Windows.Forms.Label();
-            this.bw = new System.ComponentModel.BackgroundWorker();
-            this.clearDeviceListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuNotifyIcon.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
-            // 
-            // timer
-            // 
-            this.timer.Enabled = true;
-            this.timer.Interval = 10;
-            this.timer.Tick += new System.EventHandler(this.timer_Tick);
             // 
             // notifyIcon
             // 
@@ -62,7 +54,7 @@
             this.clearDeviceListToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.contextMenuNotifyIcon.Name = "contextMenuNotifyIcon";
-            this.contextMenuNotifyIcon.Size = new System.Drawing.Size(161, 92);
+            this.contextMenuNotifyIcon.Size = new System.Drawing.Size(161, 70);
             // 
             // unbindKeyToolStripMenuItem
             // 
@@ -70,6 +62,13 @@
             this.unbindKeyToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.unbindKeyToolStripMenuItem.Text = "Unbind Key";
             this.unbindKeyToolStripMenuItem.Click += new System.EventHandler(this.unbindKeyToolStripMenuItem_Click);
+            // 
+            // clearDeviceListToolStripMenuItem
+            // 
+            this.clearDeviceListToolStripMenuItem.Name = "clearDeviceListToolStripMenuItem";
+            this.clearDeviceListToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.clearDeviceListToolStripMenuItem.Text = "Clear Device List";
+            this.clearDeviceListToolStripMenuItem.Click += new System.EventHandler(this.clearDeviceListToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
@@ -97,19 +96,9 @@
             this.lblBindKey.Size = new System.Drawing.Size(92, 19);
             this.lblBindKey.TabIndex = 4;
             this.lblBindKey.Text = "Hit the Key";
+            this.lblBindKey.Visible = false;
             // 
-            // bw
-            // 
-            this.bw.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bw_DoWork);
-            // 
-            // clearDeviceListToolStripMenuItem
-            // 
-            this.clearDeviceListToolStripMenuItem.Name = "clearDeviceListToolStripMenuItem";
-            this.clearDeviceListToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
-            this.clearDeviceListToolStripMenuItem.Text = "Clear Device List";
-            this.clearDeviceListToolStripMenuItem.Click += new System.EventHandler(this.clearDeviceListToolStripMenuItem_Click);
-            // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -117,13 +106,13 @@
             this.Controls.Add(this.lblBindKey);
             this.Controls.Add(this.pictureBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Opacity = 0.9D;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";
             this.TopMost = true;
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Shown += new System.EventHandler(this.Form1_Shown);
             this.contextMenuNotifyIcon.ResumeLayout(false);
@@ -135,14 +124,12 @@
 
         #endregion
 
-        private System.Windows.Forms.Timer timer;
         private System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.ContextMenuStrip contextMenuNotifyIcon;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.ToolStripMenuItem unbindKeyToolStripMenuItem;
         private System.Windows.Forms.Label lblBindKey;
-        private System.ComponentModel.BackgroundWorker bw;
         private System.Windows.Forms.ToolStripMenuItem clearDeviceListToolStripMenuItem;
     }
 }
